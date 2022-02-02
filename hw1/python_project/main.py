@@ -61,8 +61,8 @@ if __name__ == "__main__":
     G.add_node(0, name="module")
     cnt = 1
     graph_dict = transform_ast(tree)
-    print(ast.dump(tree))
-    print(graph_dict)
+    # print(ast.dump(tree))
+    # print(graph_dict)
     dfs(graph_dict)
     node_labels = dict([(v, d['name'])
                         for v, d in G.nodes(data=True)])
@@ -74,4 +74,5 @@ if __name__ == "__main__":
     nx.draw(G, pos, node_size=5)
     # print(cnt)
     # print(nx.get_node_attributes(G, 'name'))
+    plt.savefig("graph.png")
     plt.show()
