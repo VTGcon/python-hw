@@ -42,6 +42,7 @@ def medium_task(matrix):
     draw_matrix(matrix, result)
     drawer.pic_write("fib_func.py")
     result += "\\includegraphics[scale=0.25]{graph.png}"
+    result += "\n\\end{document}"
     fout = open("second_task.tex", 'w')
     print(result, file=fout)
     fout = open("second_task.pdf", 'wb')
