@@ -1,5 +1,5 @@
 import os
-import my_lib as drawer
+import my_lib.main as drawer
 from pdflatex import PDFLaTeX
 
 
