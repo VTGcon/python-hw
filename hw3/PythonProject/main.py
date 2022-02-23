@@ -64,12 +64,27 @@ class Matrix:
         return ans
 
 
-if __name__ == "__main__":
-    first = Matrix(np.random.randint(0, 10, (10, 10)))
-    second = Matrix(np.random.randint(0, 10, (10, 10)))
-    fout = open('matrix+.txt', 'w')
-    print(first + second, file=fout)
-    fout = open('matrix*.txt', 'w')
-    print(first * second, file=fout)
-    fout = open('matrix@.txt', 'w')
-    print(first @ second, file=fout)
+class Writer:
+    def __str__(self):
+        return '%s' % self._matrix
+
+
+class GetSetClass:
+    @property
+    def matrix(self):
+        return self._matrix
+
+    @matrix.setter
+    def matrix(self, matrix):
+        self._matrix = np.asarray(matrix)
+
+
+class NPMatrix(np.lib.mixins.NDArrayOperatorsMixin, Writer, GetSetClass):
+    def __init__(self, matrix):
+        self._matrix = np.asarray(matrix)
+
+    def __array_func__(self, func, method, *inputs, **kwargs):
+        inputs = list(x.matrix if isinstance(x, NPMatrix) else x for x in inputs)
+        result = getattr(func, method)(*inputs, **kwargs)
+        return type(self)(result)
+
