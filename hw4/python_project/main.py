@@ -1,6 +1,9 @@
+import math
+import multiprocessing
 import random
-import time, threading, multiprocessing, math
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+import threading
+import time
+import concurrent.futures as pool
 
 
 def fib_func(n):
@@ -12,6 +15,32 @@ def fib_func(n):
     for i in range(n - 1):
         ans.append(ans[-1] + ans[-2])
     return ans
+
+
+def integrate_part(f, a, b, n_iter):
+    start = time.time()
+    acc = 0
+    step = (b - a) / n_iter
+    for i in range(n_iter):
+        acc += f(a + i * step) * step
+    return [acc, f"[{a}, {b}] starts in {start}\n"]
+
+
+def integrate(f, a, b, n_jobs=1, n_iter=1000):
+    n_iter = int(n_iter / n_jobs)
+    step = (b - a) / n_jobs
+    acc = 0
+    log = f"start work: n_jobs={n_jobs}, start={time.time()}\n"
+    executor = pool.ProcessPoolExecutor(max_workers=3)
+    jobs = [executor.submit(integrate_part, f, a + i * step, a + (i + 1) * step, n_iter)
+            for i in range(n_jobs)]
+    for job in pool.as_completed(jobs):
+        result = job.result()
+        acc += result[0]
+        log += result[1]
+    fout = open("medium_logs.txt", 'w')
+    print(log, file=fout)
+    return acc
 
 
 if __name__ == '__main__':
@@ -38,4 +67,10 @@ if __name__ == '__main__':
         m.join()
     new_time = time.time_ns()
     print(new_time - cur_time, file=fout)
-
+    # medium
+    for n_jobs in range(1, 2 * multiprocessing.cpu_count()):
+        time_start = time.time_ns()
+        integrate(math.cos, 0, math.pi / 2, n_jobs=n_jobs)
+        time_end = time.time_ns()
+        fout = open("medium.txt", 'a')
+        print(f"n_jobs={n_jobs} {time_end - time_start}\n", file=fout)
